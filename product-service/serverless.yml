@@ -12,10 +12,11 @@ provider:
   name: aws
   runtime: nodejs14.x
   region: eu-west-1
+  stage: dev
 
 functions:
-  products:
-    handler: handlers/products.handler
+  getProductsList:
+    handler: handlers/getProductsList.handler
     events:
       - httpApi:
           method: get
