@@ -19,6 +19,8 @@ functions:
     handler: handlers/getProductsList.handler
     events:
       - httpApi:
+          # TODO: Not working in not typescript version
+          # cors: true
           method: get
           path: /products
   getProductsById:
