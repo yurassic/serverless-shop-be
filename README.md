@@ -24,6 +24,4 @@ Template:
   }
 ]`
 
-### TODO:
-- Add good structure for handlers
 
