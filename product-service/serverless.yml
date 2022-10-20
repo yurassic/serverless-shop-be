@@ -13,6 +13,8 @@ provider:
   runtime: nodejs14.x
   region: eu-west-1
   stage: dev
+  httpApi:
+    cors: true
   environment:
     DYNAMODB_PRODUCTS_TABLE: products
     DYNAMODB_STOCKS_TABLE: stocks
