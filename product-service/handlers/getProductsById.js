@@ -1,8 +1,34 @@
-import products from '../__mocks__/products.json'
+import AWS from 'aws-sdk';
 
-export const handler = async (event) => {
-  const { productId } = event.pathParameters
-  const product = products.find(item => item.id === productId)
+const dynamoDB = new AWS.DynamoDB.DocumentClient()
+
+const query = async (params, callback) => {
+  try {
+    const data = await dynamoDB.query(params).promise()
+    return data.Items[0] || null
+  } catch (error) {
+    console.error(error)
+    callback(null, {
+      statusCode: 500,
+      headers: { 'Content-Type': 'text/plain' },
+      body: `Couldn\'t fetch the ${params.TableName}.`,
+    })
+  }
+}
+
+export const handler = async (event, context, callback) => {
+  console.log(event, 'Lambda request')
+
+  const tableParams = {
+    TableName: process.env.DYNAMODB_PRODUCTS_TABLE,
+    KeyConditionExpression: 'id = :id',
+    ExpressionAttributeValues: {
+      ':id': event.pathParameters.productId,
+    },
+  }
+
+  const product = await query(tableParams, callback)
+
   if (!product) {
     return {
       statusCode: 404,

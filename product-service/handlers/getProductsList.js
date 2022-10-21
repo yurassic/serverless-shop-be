@@ -9,7 +9,7 @@ const scan = async (params, callback) => {
   } catch (error) {
     console.error(error)
     callback(null, {
-      statusCode: error.statusCode || 501,
+      statusCode: 500,
       headers: { 'Content-Type': 'text/plain' },
       body: `Couldn\'t fetch the ${params.TableName}.`,
     })
