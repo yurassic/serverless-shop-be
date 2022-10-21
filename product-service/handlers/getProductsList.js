@@ -11,7 +11,7 @@ const scan = async (params, callback) => {
     callback(null, {
       statusCode: 500,
       headers: { 'Content-Type': 'text/plain' },
-      body: `Couldn\'t fetch the ${params.TableName}.`,
+      body: `Couldn\'t fetch the product.`,
     })
   }
 }

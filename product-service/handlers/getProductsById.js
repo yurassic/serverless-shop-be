@@ -16,6 +16,7 @@ const query = async (params, callback) => {
   }
 }
 
+// SEE: I'm lazy to get stocks here (in task description it wasn't mention)
 export const handler = async (event, context, callback) => {
   console.log(event, 'Lambda request')
 

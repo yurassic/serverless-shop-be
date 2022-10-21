@@ -46,3 +46,9 @@ functions:
       - httpApi:
           method: get
           path: /products/{productId}
+  createProduct:
+    handler: handlers/createProduct.handler
+    events:
+      - httpApi:
+          method: post
+          path: /products
