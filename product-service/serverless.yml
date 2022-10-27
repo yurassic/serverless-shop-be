@@ -13,14 +13,31 @@ provider:
   runtime: nodejs14.x
   region: eu-west-1
   stage: dev
+  httpApi:
+    cors: true
+  environment:
+    DYNAMODB_PRODUCTS_TABLE: products
+    DYNAMODB_STOCKS_TABLE: stocks
 
+  iam:
+    role:
+      statements:
+        - Effect: 'Allow'
+          Action:
+            - 'dynamodb:PutItem'
+            - 'dynamodb:Get*'
+            - 'dynamodb:Scan*'
+            - 'dynamodb:Query*'
+            - 'dynamodb:UpdateItem'
+            - 'dynamodb:DeleteItem'
+          Resource: 
+            - arn:aws:dynamodb:${aws:region}:${aws:accountId}:table/${self:provider.environment.DYNAMODB_PRODUCTS_TABLE}
+            - arn:aws:dynamodb:${aws:region}:${aws:accountId}:table/${self:provider.environment.DYNAMODB_STOCKS_TABLE}
 functions:
   getProductsList:
     handler: handlers/getProductsList.handler
     events:
       - httpApi:
-          # TODO: Not working in not typescript version
-          # cors: true
           method: get
           path: /products
   getProductsById:
@@ -29,3 +46,9 @@ functions:
       - httpApi:
           method: get
           path: /products/{productId}
+  createProduct:
+    handler: handlers/createProduct.handler
+    events:
+      - httpApi:
+          method: post
+          path: /products
