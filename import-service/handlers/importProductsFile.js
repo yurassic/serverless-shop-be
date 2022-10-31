@@ -3,6 +3,7 @@ import AWS from 'aws-sdk';
 const s3 = new AWS.S3()
 
 const BUCKET = 'import-service-yn'
+const FILE_TYPE = 'text/csv'
 
 export const handler = async (event) => {
   console.log(event, 'Lambda request')
@@ -16,13 +17,14 @@ export const handler = async (event) => {
   }
 
   const params = {
-    'Bucket': BUCKET,
-    'Key': `uploaded/${fileName}`,
+    Bucket: BUCKET,
+    Key: `uploaded/${fileName}`,
+    ContentType: FILE_TYPE,
   }
 
 
   try {
-    const url = await s3.getSignedUrl('putObject', params)
+    const url = await s3.getSignedUrlPromise('putObject', params)
     return {
         statusCode: 200,
         body: url,

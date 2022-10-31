@@ -18,7 +18,7 @@ provider:
   iam:
     role:
       statements:
-        # Probably is bad practice, but for pet project is ok
+        # Probably is bad practice, but for HM project is ok
         - Effect: Allow
           Action:
             - s3:*
@@ -30,3 +30,12 @@ functions:
       - httpApi:
           method: get
           path: /import
+  importFileParser:
+    handler: handlers/importFileParser.handler
+    events:
+      - s3:
+          bucket: import-service-yn
+          event: s3:ObjectCreated:*
+          rules: 
+              - prefix: uploaded/
+          existing: true
