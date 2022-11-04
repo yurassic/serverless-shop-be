@@ -1,7 +1,11 @@
 import AWS from 'aws-sdk';
 import csvParser from 'csv-parser';
+import { v4 as uuidv4 } from 'uuid';
+import chunk from 'lodash/chunk'
+
 
 const s3 = new AWS.S3()
+const sqs = new AWS.SQS()
 
 const BUCKET = 'import-service-yn'
 
@@ -25,7 +29,23 @@ export const handler = async (event) => {
           .on('end', () => resolve())
     })
 
-    console.log(result, 'File parser result')
+    // Our SQS support up to 5 messages in one batch
+    const spilttedResult = chunk(result, 5);
+
+    for (const arr of spilttedResult) {
+      var params = {
+        QueueUrl: process.env.SQS_QUEUE_URL,
+        Entries: []
+      };
+      for (const message of arr) {
+        params.Entries.push({
+          Id: uuidv4(),
+          MessageBody: JSON.stringify(message)
+        });
+      }
+      await sqs.sendMessageBatch(params).promise()
+      console.log('Send batch message:', params.Entries)
+    }
     
     return {
         statusCode: 200,
