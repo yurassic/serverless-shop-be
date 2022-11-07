@@ -65,7 +65,6 @@ functions:
       - httpApi:
           method: post
           path: /products
-          # TODO: Call in on SNS
   catalogBatchProcess:
     handler: handlers/catalogBatchProcess.handler
     events:
