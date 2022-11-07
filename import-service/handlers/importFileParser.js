@@ -1,8 +1,5 @@
 import AWS from 'aws-sdk';
 import csvParser from 'csv-parser';
-import { v4 as uuidv4 } from 'uuid';
-import chunk from 'lodash/chunk'
-
 
 const s3 = new AWS.S3()
 const sqs = new AWS.SQS()
@@ -30,23 +27,17 @@ export const handler = async (event) => {
           .on('end', () => resolve())
     })
 
-    // Our SQS support up to 5 messages in one batch
-    const spilttedResult = chunk(result, 5);
 
-    // It looks like this logic is redundant and batch requests will work by default when we set it in serverless file.
-    for (const arr of spilttedResult) {
-      var params = {
+
+    // Send every result item with SQS
+    for (const item of result) {
+      const params = {
         QueueUrl: CATALOG_SQS_URL,
-        Entries: []
-      };
-      for (const message of arr) {
-        params.Entries.push({
-          Id: uuidv4(),
-          MessageBody: JSON.stringify(message)
-        });
+        MessageBody: JSON.stringify(item)
       }
-      await sqs.sendMessageBatch(params).promise()
-      console.log('Send batch message:', params.Entries)
+  
+      await sqs.sendMessage(params).promise()
+      console.log('Send SQS message:', item)
     }
     
     return {
