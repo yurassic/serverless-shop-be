@@ -15,8 +15,6 @@ provider:
   stage: dev
   httpApi:
     cors: true
-  environment:
-   SQS_QUEUE_URL: { Ref: NewSQSQueue } # can be accessible as env.SQS_QUEUE_URL
   iam:
     role:
       statements:
@@ -28,8 +26,7 @@ provider:
         - Effect: Allow
           Action:
             - sqs:*
-          Resource:
-            Fn::GetAtt: [ NewSQSQueue, Arn ]
+          Resource: arn:aws:sqs:eu-west-1:681538010575:catalogItemsQueue
 functions:
   importProductsFile:
     handler: handlers/importProductsFile.handler
@@ -46,18 +43,4 @@ functions:
           rules: 
               - prefix: uploaded/
           existing: true
-  catalogBatchProcess:
-    handler: handlers/catalogBatchProcess.handler
-    events:
-      - sqs:
-          batchSize: 5
-          arn:
-            Fn::GetAtt:
-              - NewSQSQueue
-              - Arn
-resources:
- Resources:
-   NewSQSQueue:
-     Type: "AWS::SQS::Queue"
-     Properties:
-       QueueName: catalogItemsQueue
+

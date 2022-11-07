@@ -8,6 +8,7 @@ const s3 = new AWS.S3()
 const sqs = new AWS.SQS()
 
 const BUCKET = 'import-service-yn'
+const CATALOG_SQS_URL = 'https://sqs.eu-west-1.amazonaws.com/681538010575/catalogItemsQueue'
 
 export const handler = async (event) => {
   console.log(event, 'Lambda request')
@@ -32,9 +33,10 @@ export const handler = async (event) => {
     // Our SQS support up to 5 messages in one batch
     const spilttedResult = chunk(result, 5);
 
+    // It looks like this logic is redundant and batch requests will work by default when we set it in serverless file.
     for (const arr of spilttedResult) {
       var params = {
-        QueueUrl: process.env.SQS_QUEUE_URL,
+        QueueUrl: CATALOG_SQS_URL,
         Entries: []
       };
       for (const message of arr) {
