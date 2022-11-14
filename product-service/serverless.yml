@@ -18,6 +18,8 @@ provider:
   environment:
     DYNAMODB_PRODUCTS_TABLE: products
     DYNAMODB_STOCKS_TABLE: stocks
+    SQS_URL: { Ref: NewSQSQueue }
+    SNS_ARN: { Ref: SNSTopic }
 
   iam:
     role:
@@ -33,6 +35,17 @@ provider:
           Resource: 
             - arn:aws:dynamodb:${aws:region}:${aws:accountId}:table/${self:provider.environment.DYNAMODB_PRODUCTS_TABLE}
             - arn:aws:dynamodb:${aws:region}:${aws:accountId}:table/${self:provider.environment.DYNAMODB_STOCKS_TABLE}
+        - Effect: Allow
+          Action:
+            - sqs:*
+          Resource:
+            Fn::GetAtt: [ NewSQSQueue, Arn ]
+        - Effect: Allow
+          Action:
+            - sns:*
+          Resource:
+            Ref: SNSTopic
+
 functions:
   getProductsList:
     handler: handlers/getProductsList.handler
@@ -52,3 +65,31 @@ functions:
       - httpApi:
           method: post
           path: /products
+  catalogBatchProcess:
+    handler: handlers/catalogBatchProcess.handler
+    events:
+      - sqs:
+          batchSize: 5
+          arn:
+            Fn::GetAtt:
+              - NewSQSQueue
+              - Arn
+
+resources:
+ Resources:
+   NewSQSQueue:
+     Type: "AWS::SQS::Queue"
+     Properties:
+       QueueName: catalogItemsQueue
+   SNSTopic:
+     Type: "AWS::SNS::Topic"
+     Properties:
+       TopicName: createProductTopic
+   SNSSubscription:
+     Type: "AWS::SNS::Subscription"
+     Properties:
+       Endpoint: yuriy_nyay@epam.com
+       Protocol: email
+       TopicArn:
+        Ref: SNSTopic
+

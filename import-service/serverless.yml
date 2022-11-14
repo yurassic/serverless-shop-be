@@ -23,6 +23,10 @@ provider:
           Action:
             - s3:*
           Resource: "*"
+        - Effect: Allow
+          Action:
+            - sqs:*
+          Resource: arn:aws:sqs:eu-west-1:681538010575:catalogItemsQueue
 functions:
   importProductsFile:
     handler: handlers/importProductsFile.handler
@@ -39,3 +43,4 @@ functions:
           rules: 
               - prefix: uploaded/
           existing: true
+
