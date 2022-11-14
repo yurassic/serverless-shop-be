@@ -16,9 +16,7 @@ export const handler = async (event, ctx, cb) => {
     console.log(`Username: ${userName}, Password: ${password} `)
 
     const storedPassword = process.env[userName]
-
     const effect = !storedPassword || storedPassword != password ? 'Deny' : 'Allow'
-
     const policy = generatePolicy(encodedCreds, event.methodArn, effect)
 
     cb(null, policy)
