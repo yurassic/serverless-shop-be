@@ -1,12 +1,8 @@
 export const handler = async (event, ctx, cb) => {
   console.log(event, 'Lambda request')
 
-  if(event.type != 'TOKEN'){
-    cb('Unauthorized')
-  }
-
   try {
-    const authorizationToken = event.authorizationToken
+    const authorizationToken = event.headers.authorization
     const encodedCreds = authorizationToken.split(' ')[1]
     const buff = Buffer.from(encodedCreds, 'base64')
     const creds = buff.toString('utf-8').split(':')
@@ -17,7 +13,7 @@ export const handler = async (event, ctx, cb) => {
 
     const storedPassword = process.env[userName]
     const effect = !storedPassword || storedPassword != password ? 'Deny' : 'Allow'
-    const policy = generatePolicy(encodedCreds, event.methodArn, effect)
+    const policy = generatePolicy(encodedCreds, event.routeArn, effect)
 
     cb(null, policy)
 
@@ -28,9 +24,9 @@ export const handler = async (event, ctx, cb) => {
 }
 
 const generatePolicy = (principalId, resource, effect) => ({
-    principalId: principalId,
+    principalId,
     policyDocument: {
-      Version: '2021-10-17',
+      Version: '2012-10-17',
       Statement: [
         {
           Action: 'execute-api:Invoke',
